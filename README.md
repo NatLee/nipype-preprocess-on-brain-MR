@@ -31,7 +31,7 @@ pip3 install -r requirement.txt
 
 ### Download and Install Tools
 
-- Download and install **FSL** as instructions [here](https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/Fsl**ANTs** from source code in [Linux and macOS](https://github.com/ANTsX/ANTs/wikiInstallation).  
+- Download and install **FSL** as instructions [here](https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/Fsl**ANTs**) from source code in [Linux and macOS](https://github.com/ANTsX/ANTs/wikiInstallation).  
 - Compile /Compiling-ANTs-on-Linux-and-Mac-OS), or in [Windows 10](https://github.com/ANTsX/ANTs/wiki/Compiling-ANTs-on-Windows-10).
 - Download Auto AC-PC tools [here](https://www.nitrc.org/projects/art) into `./utils` if you're not using MacOS.
 - Download ATRA tools in the same link [here](https://www.nitrc.org/projects/art) into `./utils` if you're not using Linux-based system.
