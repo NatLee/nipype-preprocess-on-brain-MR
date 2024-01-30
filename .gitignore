@@ -1,4 +1,5 @@
 
+.ipynb_checkpoints
 
 .vscode
 
@@ -9,5 +10,6 @@ __pycache__
 desktop.ini
 
 data/ADNI
+data/*ADNI-*.*
 
 utils/*/example*/
