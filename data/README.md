@@ -13,6 +13,10 @@ Thus, there would be four sub-directories in this floder as shown below:
 - ADNI2_Screening_AD  
 - ADNI2_Screening_NC  
 
+Or, you can just place the samples in `./data`.
+
+> If you only have DICOM files, you can use [DICOM to NIfTI Online Converter](https://www.onlineconverter.com/dicom-to-nifti) to convert them into NIfTI format.
+
 ## Template
 
 Create a folder names "Template", copy the template volume from the path:  
