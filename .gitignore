@@ -1,6 +1,7 @@
-crash*
-.Trash*
-.ipynb_checkpoints
+src/*_workflow
+src/crash*
+src/.Trash*
+src/.ipynb_checkpoints
 
 .vscode
 
