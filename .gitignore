@@ -1,4 +1,6 @@
-src/*_workflow
+
+src/preprocess-workflow
+
 src/crash*
 src/.Trash*
 src/.ipynb_checkpoints
