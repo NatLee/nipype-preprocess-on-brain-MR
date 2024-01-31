@@ -3,6 +3,8 @@ from pathlib import Path
 import gzip
 import shutil
 
+from loguru import logger
+
 from nipype.interfaces.base import SimpleInterface
 from nipype.interfaces.base import BaseInterfaceInputSpec
 from nipype.interfaces.base import TraitedSpec
@@ -26,6 +28,8 @@ class ZipOutputInterface(SimpleInterface):
         output_folder = self.inputs.output_folder
         output_path = Path(output_folder) / 'zip'
         output_file = output_path / (Path(input_file).name + '.gz')
+
+        logger.info('Compressing {} to {}'.format(input_file, output_file))
 
         # Create the output directory if it doesn't exist
         output_path.mkdir(parents=True, exist_ok=True)
