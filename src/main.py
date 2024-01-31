@@ -1,39 +1,69 @@
+import tempfile
+from pathlib import Path
 import shutil
 import subprocess
-import matplotlib.pyplot as plt
 from pathlib import Path
-#from multiprocessing import Pool, cpu_count
 import os
-import logging
+from loguru import logger
+#from multiprocessing import Pool, cpu_count
+
+import matplotlib.pyplot as plt
+
 from nipype.interfaces.ants.segmentation import N4BiasFieldCorrection
 from nilearn.plotting import plot_anat
+
 from scipy.signal import medfilt
 from sklearn.cluster import KMeans
+
 import numpy as np
 import nibabel as nib
 
 def showImg(img, title):
     plot_anat(img, title=title, display_mode='ortho', dim=-1, draw_cross=False, annotate=False)
-    plt.show()
+    plt.savefig(title + '.png')
 
-def createDir(path):
-    _path = Path(path)
-    if not _path.is_dir():
-        _path.mkdir()
-    return
 
 def plotMiddle(data, slice_no=None):
     if not slice_no:
         slice_no = data.shape[-1] // 2
     plt.figure()
     plt.imshow(data[..., slice_no], cmap="gray")
-    plt.show()
+    plt.savefig('middle.png')
     return
 
-def runACPCDetect(niifile, acpcDetectPath='./utils/acpcdetect_V2.0_macOS10.12.6/bin/acpcdetect'):
-    command = [acpcDetectPath, "-no-tilt-correction", "-center-AC", "-nopng", "-noppm" ,"-i", niifile]
-    subprocess.call(command, stdout=open(os.devnull, "r"), stderr=subprocess.STDOUT)
-    return
+def run_acpc_detect(nii_file: str, acpc_detect_path: str) -> Path:
+    logger.info('ACPC detection on: {}'.format(nii_file))
+
+    # Convert `nii_file` to a Path object
+    nii_file_path = Path(nii_file)
+
+    # Use a temporary directory
+    with tempfile.TemporaryDirectory() as temp_dir:
+        temp_dir_path = Path(temp_dir)
+
+        # Copy the .nii file to the temporary directory
+        temp_nii_file_path = temp_dir_path / nii_file_path.name
+        shutil.copy(nii_file, temp_nii_file_path)
+
+        # Modify the command to use the new .nii file path in the temporary directory
+        command = [acpc_detect_path, "-no-tilt-correction", "-center-AC", "-nopng", "-noppm", "-i", str(temp_nii_file_path)]
+        
+        # Run the command
+        subprocess.call(command, stdout=open(os.devnull, "w"), stderr=subprocess.STDOUT)
+        
+        # Create a folder as the same name as the .nii file
+        output_folder = nii_file_path.parent / nii_file_path.stem / 'acpc'
+        Path(output_folder).mkdir(parents=True, exist_ok=True)
+
+        # Move the output files to the folder
+        for file in temp_dir_path.glob('*'):
+            shutil.move(file, output_folder)
+
+        # Use Path to change mode of the folder (include all files)
+        (output_folder.parent).chmod(0o777)
+
+    return output_folder
+
 
 def orient2std(src_path, dst_path):
     command = ["fslreorient2std", src_path, dst_path]
@@ -54,7 +84,7 @@ def bet(src_path, dst_path, frac=0.5):
     return
 
 def bias_field_correction(src_path, dst_path):
-    logging.info('N4ITK on: {}'.format(src_path))
+    logger.info('N4ITK on: {}'.format(src_path))
     try:
         n4 = N4BiasFieldCorrection()
         n4.inputs.input_image = src_path
@@ -67,7 +97,7 @@ def bias_field_correction(src_path, dst_path):
         n4.inputs.bspline_fitting_distance = 300
         n4.run()
     except RuntimeError:
-        logging.warning('Failed on: {}'.format(src_path))
+        logger.warning('Failed on: {}'.format(src_path))
 
     return
 
@@ -112,7 +142,7 @@ def equalize_hist(volume, bins_num=256):
 
 def enhance(src_path, dst_path, kernel_size=3,
             percentils=[0.5, 99.5], bins_num=256, eh=True):
-    logging.info('Preprocess on: {}'.format(src_path))
+    logger.info('Preprocess on: {}'.format(src_path))
     try:
         volume, affine = load_nii(src_path)
         volume = denoise(volume, kernel_size)
@@ -121,7 +151,7 @@ def enhance(src_path, dst_path, kernel_size=3,
             volume = equalize_hist(volume, bins_num)
         save_nii(volume, dst_path, affine)
     except RuntimeError:
-        logging.warning('Failed on: {}'.format(src_path))
+        logger.warning('Failed on: {}'.format(src_path))
 
 def extract_features(data):
     x_idx, y_idx, z_idx = np.where(data > 0)
@@ -157,7 +187,7 @@ def get_target_label(labels, data):
     return target_label
 
 def segment(src_path, dst_path, labels_path=None):
-    logging.info('Segment on: {}'.format(src_path))
+    logger.info('Segment on: {}'.format(src_path))
     try:
         data, affine = load_nii(src_path)
         n_clusters = 3
@@ -173,37 +203,34 @@ def segment(src_path, dst_path, labels_path=None):
         save_nii(labels, labels_path, affine)
         save_nii(gm, dst_path, affine)
     except RuntimeError:
-        logging.warning('Falid on: {}'.format(src_path))
+        logger.warning('Falid on: {}'.format(src_path))
 
     return
 
 if __name__ == '__main__':
-    
-    logging.basicConfig(level=logging.INFO,
-            format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
-            datefmt='%Y-%m-%d %H:%M:%S')
 
     # Reference FSL sample template
     refPath = '$FSLDIR/data/standard/MNI152_T1_1mm.nii.gz'
 
     # Set ART location
-    os.environ['ARTHOME'] = './utils/atra1.0_LinuxCentOS6.7/'
+    os.environ['ARTHOME'] = '/utils/atra1.0_LinuxCentOS6.7/'
 
     # Set ACPC Path
-    acpcDetectPath='./utils/acpcdetect_V2.0_macOS10.12.6/bin/acpcdetect'
+    acpc_detect_path='/utils/acpcdetect_v2.1_LinuxCentOS6.7/bin/acpcdetect'
 
     # ACPC detection
 
-    niiPaths = Path('./data').glob('**/*.nii')
-    niiFiles = [niiPath for niiPath in niiPaths if niiPath.is_file()]
+    nii_paths = Path('/data').glob('**/*.nii')
+    nii_files = [nii_path for nii_path in nii_paths if nii_path.is_file()]
 
-    for niiFile in niiFiles:
-        runACPCDetect(niiFile, acpcDetectPath)
+    for nii_file in nii_files:
+        run_acpc_detect(nii_file, acpc_detect_path)
 
 
+    '''
     # Zip _RAS.nii files.
 
-    niiACPCPaths = Path('./data').glob('**/*_RAS.nii')
+    niiACPCPaths = Path('/data').glob('**/*_RAS.nii')
     niiACPCFiles = [niiACPCPath for niiACPCPath in niiACPCPaths if niiACPCPath.is_file()]
 
     for niiFile in niiACPCFiles:
@@ -213,7 +240,7 @@ if __name__ == '__main__':
 
     # Run orient2std and registration
 
-    niiGzPaths = Path('./data').glob('**/*.gz')
+    niiGzPaths = Path('/data').glob('**/*.gz')
     niiGzFiles = [niiGzPath for niiGzPath in niiGzPaths if niiGzPath.is_file()]
 
     regFiles = list()
@@ -222,12 +249,12 @@ if __name__ == '__main__':
         dstFile = niiGzFile.parent / (niiGzFile.stem.split('.')[0] + '_reg.nii.gz')
         regFiles.append(dstFile)
         dstFilePath = dstFile.as_posix()
-        logging.info('Registration on: {}'.format(niiGzFilePath))
+        logger.info('Registration on: {}'.format(niiGzFilePath))
         try:
             orient2std(niiGzFilePath, dstFilePath)
             registration(dstFilePath, dstFilePath, refPath)
         except RuntimeError:
-            logging.warning('Falied on: {}'.format(niiGzFilePath))
+            logger.warning('Falied on: {}'.format(niiGzFilePath))
 
     # Skull stripping
 
@@ -237,11 +264,11 @@ if __name__ == '__main__':
         dstFile = regFile.parent / (regFile.stem.split('.')[0] + '_strip.nii.gz')
         stripFiles.append(dstFile)
         dstFilePath = dstFile.as_posix()
-        logging.info('Stripping on : {}'.format(regFilePath))
+        logger.info('Stripping on : {}'.format(regFilePath))
         try:
             bet(regFilePath, dstFilePath, frac=0.3)
         except RuntimeError:
-            logging.warning('Failed on: {}'.format(regFilePath))
+            logger.warning('Failed on: {}'.format(regFilePath))
 
     # Bias correction
     bcFiles = list()
@@ -273,6 +300,6 @@ if __name__ == '__main__':
         dstFilePath = dstFile.as_posix()
         labelFilePath = labelFile.as_posix()
         segment(enhancedFilePath, dstFilePath, labels_path=labelFilePath)
-
+    '''
 
 
