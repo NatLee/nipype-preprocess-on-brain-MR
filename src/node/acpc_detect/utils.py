@@ -14,13 +14,12 @@ os.environ['ARTHOME'] = '/utils/atra1.0_LinuxCentOS6.7/'
 ACPC_DETECT_BIN_PATH = '/utils/acpcdetect_v2.1_LinuxCentOS6.7/bin/acpcdetect'
 
 
-def acpc_detect(nii_file: str) -> Path:
-    logger.info('ACPC detection on: {}'.format(nii_file))
+def acpc_detect(nii_file_path: Path, output_path:Path) -> Path:
+    logger.info('ACPC detection on: {}'.format(nii_file_path))
 
-    # Convert `nii_file` to a Path object
-    nii_file_path = Path(nii_file)
     # Specify the output folder
-    output_folder = nii_file_path.parent / nii_file_path.stem / 'acpc'
+    output_folder = output_path / 'acpc'
+    logger.info('ACPC Output path: {}'.format(output_folder))
 
     # Use a temporary directory
     with tempfile.TemporaryDirectory() as temp_dir:
