@@ -1,8 +1,7 @@
-import tempfile
 from pathlib import Path
+import tempfile
 import shutil
 import subprocess
-from pathlib import Path
 import os
 from loguru import logger
 #from multiprocessing import Pool, cpu_count
@@ -18,10 +17,11 @@ from sklearn.cluster import KMeans
 import numpy as np
 import nibabel as nib
 
+from node.acpc_detect.utils import acpc_detect
+
 def showImg(img, title):
     plot_anat(img, title=title, display_mode='ortho', dim=-1, draw_cross=False, annotate=False)
     plt.savefig(title + '.png')
-
 
 def plotMiddle(data, slice_no=None):
     if not slice_no:
@@ -30,40 +30,6 @@ def plotMiddle(data, slice_no=None):
     plt.imshow(data[..., slice_no], cmap="gray")
     plt.savefig('middle.png')
     return
-
-def run_acpc_detect(nii_file: str, acpc_detect_path: str) -> Path:
-    logger.info('ACPC detection on: {}'.format(nii_file))
-
-    # Convert `nii_file` to a Path object
-    nii_file_path = Path(nii_file)
-
-    # Use a temporary directory
-    with tempfile.TemporaryDirectory() as temp_dir:
-        temp_dir_path = Path(temp_dir)
-
-        # Copy the .nii file to the temporary directory
-        temp_nii_file_path = temp_dir_path / nii_file_path.name
-        shutil.copy(nii_file, temp_nii_file_path)
-
-        # Modify the command to use the new .nii file path in the temporary directory
-        command = [acpc_detect_path, "-no-tilt-correction", "-center-AC", "-nopng", "-noppm", "-i", str(temp_nii_file_path)]
-        
-        # Run the command
-        subprocess.call(command, stdout=open(os.devnull, "w"), stderr=subprocess.STDOUT)
-        
-        # Create a folder as the same name as the .nii file
-        output_folder = nii_file_path.parent / nii_file_path.stem / 'acpc'
-        Path(output_folder).mkdir(parents=True, exist_ok=True)
-
-        # Move the output files to the folder
-        for file in temp_dir_path.glob('*'):
-            shutil.move(file, output_folder)
-
-        # Use Path to change mode of the folder (include all files)
-        (output_folder.parent).chmod(0o777)
-
-    return output_folder
-
 
 def orient2std(src_path, dst_path):
     command = ["fslreorient2std", src_path, dst_path]
@@ -101,7 +67,7 @@ def bias_field_correction(src_path, dst_path):
 
     return
 
-def load_nii(path):
+def load_nii(path:str):
     nii = nib.load(path)
     return nii.get_data(), nii.affine
 
@@ -215,16 +181,13 @@ if __name__ == '__main__':
     # Set ART location
     os.environ['ARTHOME'] = '/utils/atra1.0_LinuxCentOS6.7/'
 
-    # Set ACPC Path
-    acpc_detect_path='/utils/acpcdetect_v2.1_LinuxCentOS6.7/bin/acpcdetect'
-
     # ACPC detection
 
     nii_paths = Path('/data').glob('**/*.nii')
     nii_files = [nii_path for nii_path in nii_paths if nii_path.is_file()]
 
     for nii_file in nii_files:
-        run_acpc_detect(nii_file, acpc_detect_path)
+        acpc_detect(nii_file)
 
 
     '''
