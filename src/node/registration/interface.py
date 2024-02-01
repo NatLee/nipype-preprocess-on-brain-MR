@@ -15,7 +15,7 @@ class FLIRTInputSpec(BaseInterfaceInputSpec):
     output_folder = Directory(exists=False, desc='Output folder for the registered image', mandatory=True)
 
 class FLIRTOutputSpec(TraitedSpec):
-    out_file = File(exists=True, desc='Path to the registered image')
+    output_file = File(exists=True, desc='Path to the registered image')
 
 class FLIRTInterface(SimpleInterface):
     input_spec = FLIRTInputSpec
@@ -25,7 +25,7 @@ class FLIRTInterface(SimpleInterface):
         input_file = self.inputs.input_file
         output_folder = Path(self.inputs.output_folder)
         output_reg_folder = output_folder / 'registration'
-        out_file = output_reg_folder / Path(input_file).name
+        output_file = output_reg_folder / Path(input_file).name
 
         # Use the default FSL reference image if ref_file is not provided
         ref_file = self.inputs.ref_file
@@ -34,7 +34,7 @@ class FLIRTInterface(SimpleInterface):
 
         logger.info('Registering {} to {}'.format(input_file, ref_file))
         logger.info('Reference file: {}'.format(ref_file))
-        logger.info('Output file: {}'.format(out_file))
+        logger.info('Output file: {}'.format(output_file))
 
         # Ensure the output directory exists
         output_reg_folder.mkdir(parents=True, exist_ok=True)
@@ -50,7 +50,7 @@ class FLIRTInterface(SimpleInterface):
         flirt = FLIRT(
             in_file=input_file,
             reference=Path(ref_file).as_posix(),
-            out_file=str(out_file),
+            out_file=str(output_file),
             bins=256,
             cost_func='corratio',
             searchr_x=[0, 0],
@@ -63,7 +63,7 @@ class FLIRTInterface(SimpleInterface):
         # Execute FLIRT
         flirt.run()
 
-        self._results['out_file'] = str(out_file)
+        self._results['output_file'] = str(output_file)
 
         return runtime
 
