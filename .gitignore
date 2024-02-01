@@ -17,5 +17,6 @@ desktop.ini
 data/ADNI
 data/ADNI-*
 data/*ADNI-*.*
+data/099_S_4205*
 
 utils/*/example*/
