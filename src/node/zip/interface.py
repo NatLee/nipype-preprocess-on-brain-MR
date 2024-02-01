@@ -26,19 +26,20 @@ class ZipOutputInterface(SimpleInterface):
     def _run_interface(self, runtime):
         input_file = self.inputs.input_file
         output_folder = self.inputs.output_folder
-        output_path = Path(output_folder) / 'zip'
-        output_file = output_path / (Path(input_file).name + '.gz')
+        output_zip_folder = Path(output_folder) / 'zip'
+        output_file = output_zip_folder / (Path(input_file).name + '.gz')
 
         logger.info('Compressing {} to {}'.format(input_file, output_file))
 
         # Create the output directory if it doesn't exist
-        output_path.mkdir(parents=True, exist_ok=True)
-        # Clean up the output file if it already exists
-        if output_file.exists():
-            if output_file.is_file():
-                output_file.unlink()
-            if output_file.is_dir():
-                shutil.rmtree(output_file)
+        output_zip_folder.mkdir(parents=True, exist_ok=True)
+
+        # Clean the folder
+        for file in output_zip_folder.glob('*'):
+            if file.is_file():
+                file.unlink()
+            if file.is_dir():
+                shutil.rmtree(file)
         
         # Compress the directory
         with open(input_file, 'rb') as f_in, gzip.open(output_file, 'wb') as f_out:
