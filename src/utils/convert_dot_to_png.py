@@ -13,8 +13,7 @@ def convert_dot_to_png(dot_file_path, png_file_path):
     # Load the dot file
     graphs = pydot.graph_from_dot_file(dot_file_path)
 
-    # In case there are multiple graphs, iterate over each
-    for graph in graphs:
-        graph.write_png(png_file_path)
+    # Save the dot file as a PNG file
+    graphs[0].write_png(png_file_path)
 
     logger.info(f"Saved PNG file to {png_file_path}")
