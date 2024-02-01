@@ -14,6 +14,7 @@ __pycache__
 desktop.ini
 
 data/ADNI
+data/ADNI-*
 data/*ADNI-*.*
 
 utils/*/example*/
