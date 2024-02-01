@@ -17,10 +17,8 @@ def kmeans_cluster(data:np.ndarray, n_clusters:int) -> np.ndarray:
     kmeans_model = KMeans(
         n_clusters=n_clusters,
         init="k-means++",
-        precompute_distances=True,
         verbose=0,
         random_state=7,
-        n_jobs=1,
         max_iter=1000,
         tol=1e-6
     ).fit(intensities)
