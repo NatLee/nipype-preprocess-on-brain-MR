@@ -1,15 +1,17 @@
 import shutil
 from pathlib import Path
 
-from nipype.interfaces.base import (SimpleInterface, BaseInterfaceInputSpec, TraitedSpec, File, Directory)
+from nipype.interfaces.base import (SimpleInterface, BaseInterfaceInputSpec, TraitedSpec, File, Directory, traits)
 from loguru import logger
 
 from utils.draw_segmentation import draw_segmentation
 
 class DrawSegmentationInputSpec(BaseInterfaceInputSpec):
-    acpc_input_file = File(exists=True, desc='ACPC aligned Source image path (.nii.gz)', mandatory=True)
-    segmented_input_file = File(exists=True, desc='Segmented Source image path (.nii.gz)', mandatory=True)
+    acpc_input_file = File(exists=True, desc='ACPC aligned Source image path (.nii.gz or .nii)', mandatory=True)
+    segmented_input_file = File(exists=True, desc='Segmented Source image path (.nii.gz or .nii)', mandatory=True)
     output_folder = Directory(exists=False, desc='Output folder for the segmented image', mandatory=True)
+    threshold = traits.Float(0.6, usedefault=True, desc='Threshold for the segmentation image (0-1)')
+    title = traits.String('Prob. map', usedefault=True, desc='Title for the segmentation image')
 
 class DrawSegmentationOutputSpec(TraitedSpec):
     output_file = File(exists=True, desc='Path to png image')
@@ -44,7 +46,9 @@ class DrawSegmentationInterface(SimpleInterface):
         draw_segmentation(
             input_nii_path=acpc_input_file,
             input_seg_nii_path=segmented_input_file,
-            output_png_path=output_png_path.absolute().as_posix()
+            output_png_path=output_png_path.absolute().as_posix(),
+            threshold=self.inputs.threshold,
+            title=self.inputs.title,
         )
 
         return runtime
