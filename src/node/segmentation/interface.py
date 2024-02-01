@@ -35,13 +35,13 @@ class SegmentationInterface(SimpleInterface):
         output_segmentation_folder = output_folder / 'segmentation'
 
         # Specify the labels and segmented image paths
-        gm_labels_path = output_segmentation_folder / 'gm_labels.nii.gz'
-        wm_labels_path = output_segmentation_folder / 'wm_labels.nii.gz'
-        csf_labels_path = output_segmentation_folder / 'csf_labels.nii.gz'
-        
-        gm_segmented_image_path = output_segmentation_folder / 'gm_segmented.nii.gz'
-        wm_segmented_image_path = output_segmentation_folder / 'wm_segmented.nii.gz'
-        csf_segmented_image_path = output_segmentation_folder / 'csf_segmented.nii.gz'
+        gm_labels_path = output_segmentation_folder / (Path(input_file).stem + '_gm_labels.nii.gz')
+        wm_labels_path = output_segmentation_folder / (Path(input_file).stem + '_wm_labels.nii.gz')
+        csf_labels_path = output_segmentation_folder / (Path(input_file).stem + '_csf_labels.nii.gz')
+
+        gm_segmented_image_path = output_segmentation_folder / (Path(input_file).stem + '_gm_segmented.nii.gz')
+        wm_segmented_image_path = output_segmentation_folder / (Path(input_file).stem + '_wm_segmented.nii.gz')
+        csf_segmented_image_path = output_segmentation_folder / (Path(input_file).stem + '_csf_segmented.nii.gz')
 
         logger.info(f'Segment on: {input_file}')
         logger.info(f'Output folder: {output_segmentation_folder}')
