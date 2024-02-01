@@ -38,6 +38,7 @@ class EnhancementInterface(SimpleInterface):
         enhanced_image_path = output_enhancement_folder / Path(input_file.name)
 
         logger.info(f'Preprocess on: {input_file}')
+        logger.info(f'Output: {enhanced_image_path}')
 
         # Ensure the output directory exists
         output_enhancement_folder.mkdir(parents=True, exist_ok=True)
