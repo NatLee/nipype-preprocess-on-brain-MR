@@ -8,6 +8,8 @@ from nipype.interfaces.base import Directory
 
 from node.acpc_detect.utils import acpc_detect
 
+from utils.save_nii_as_png import save_nii_as_png
+
 class ACPCDetectInputSpec(BaseInterfaceInputSpec):
     input_file = File(exists=True, desc='Path to the NIfTI file', mandatory=True)
     output_folder = Directory(exists=True, desc='Path to the output folder', mandatory=False)
@@ -25,6 +27,7 @@ class ACPCDetectInterface(SimpleInterface):
         new_output_folder = acpc_detect(input_file, output_folder)
         # Only one file is expected
         output_file = new_output_folder / (Path(input_file).stem + '_RAS.nii')
+        save_nii_as_png(output_file, new_output_folder / (Path(input_file).stem+ '_RAS.png'))
         self._results['output_file'] = output_file.as_posix()
         return runtime
 
