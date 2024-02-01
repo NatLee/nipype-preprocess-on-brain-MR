@@ -1,7 +1,6 @@
 import shutil
 from pathlib import Path
 
-import numpy as np
 from nipype.interfaces.base import (SimpleInterface, BaseInterfaceInputSpec, TraitedSpec, File, Directory)
 from loguru import logger
 
