@@ -14,7 +14,7 @@ from node.enhancement.utils import equalize_hist
 class EnhancementInputSpec(BaseInterfaceInputSpec):
     input_file = File(exists=True, desc='Source image path (.nii.gz)', mandatory=True)
     output_folder = traits.Directory(exists=False, desc='Output folder for the enhanced image', mandatory=True)
-    kernel_size = traits.Int(3, usedefault=True, desc='Kernel size for denoising')
+    kernel_size = traits.Int(1, usedefault=True, desc='Kernel size for denoising. If the size is too large, the image will be blurred')
     percentiles = traits.List([0.5, 99.5], usedefault=True, desc='Percentiles for intensity rescaling')
     bins_num = traits.Int(256, usedefault=True, desc='Number of bins for histogram equalization')
     eh = traits.Bool(True, usedefault=True, desc='Enable histogram equalization')
@@ -35,7 +35,7 @@ class EnhancementInterface(SimpleInterface):
         percentiles = self.inputs.percentiles
         bins_num = self.inputs.bins_num
         eh = self.inputs.eh
-        enhanced_image_path = output_enhancement_folder / Path(input_file.name)
+        enhanced_image_path = output_enhancement_folder / Path(input_file).name
 
         logger.info(f'Preprocess on: {input_file}')
         logger.info(f'Output: {enhanced_image_path}')
