@@ -1,5 +1,6 @@
 src/graph*
 src/preprocess-workflow
+src/preprocess_workflow
 
 src/crash*
 src/.Trash*
