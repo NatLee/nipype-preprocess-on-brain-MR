@@ -88,8 +88,10 @@ They are downloaded from [NITRC](https://www.nitrc.org/projects/art) and put in 
 
 ## Reference
 
-This repo is modified from an archived repository [quqixun/BrainPrep](https://github.com/quqixun/BrainPrep).
-
+- [quqixun/BrainPrep](https://github.com/quqixun/BrainPrep)
+- [nipype](https://nipype.readthedocs.io/en/latest/)
+- [nilearn](https://nilearn.github.io/)
+- [neurodocker](https://github.com/ReproNim/neurodocker)
 
 ## Misc
 
