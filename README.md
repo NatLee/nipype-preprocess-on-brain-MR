@@ -10,6 +10,7 @@ The project is used to do preprocessing on brain MR images (`.nii` files).
 
 There is a pipeline include those features:
 
+- Dockerize the environment
 - Auto AC-PC detection & alignment
 - Registration
 - Skull Stripping
