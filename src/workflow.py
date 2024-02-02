@@ -18,14 +18,18 @@ from utils.convert_dot_to_png import convert_dot_to_png
 
 # ==========================================
 
+# ==========================================
+# Pepare the data
+# ==========================================
+
 # Define the input file and output folder
 # List of input NIfTI files to process
-input_files = [
-    Path('/data/099_S_4205.nii'),
-    Path('/data/099_S_4205_2.nii')
-]
-
+data_folder = Path('/data')
 output_folder = Path('/output')
+
+input_files = []
+for file in data_folder.glob('*.nii'):
+    input_files.append(file)
 
 output_folders = []
 for input_file in input_files:
@@ -41,6 +45,10 @@ for input_file in input_files:
 
 pairs = list(zip(input_files, output_folders))
 
+# ==========================================
+
+# ==========================================
+# Define the workflow
 # ==========================================
 
 # Define the process_pair function
@@ -90,6 +98,10 @@ draw_wm_segmentation_node.inputs.title = 'WM@map'
 draw_csf_segmentation_node = Node(DrawSegmentationInterface(), name='draw_csf_segmentation')
 draw_csf_segmentation_node.inputs.title = 'CSF@map'
 
+# ==========================================
+
+# ==========================================
+# Connect the nodes
 # ==========================================
 
 # Create a workflow
@@ -155,6 +167,10 @@ workflow.connect(acpc_node, 'output_file', draw_csf_segmentation_node, 'acpc_inp
 workflow.connect(segmentation_node, 'csf_segmented_output_file', draw_csf_segmentation_node, 'segmented_input_file')
 workflow.connect(process_pair_node, 'output_folder', draw_csf_segmentation_node, 'output_folder')
 
+# ==========================================
+
+# ==========================================
+# Draw the workflow and run it
 # ==========================================
 
 # Draw the workflow
