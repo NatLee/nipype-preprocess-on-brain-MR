@@ -1,5 +1,4 @@
 loguru
-#antspyx==0.4.2
 
 scikit-learn==1.4.0
 scikit-image==0.22.0
