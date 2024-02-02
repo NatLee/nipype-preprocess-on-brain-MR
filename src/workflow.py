@@ -13,6 +13,7 @@ from node.bias_field_correction.interface import BiasFieldCorrectionInterface
 from node.enhancement.interface import EnhancementInterface
 from node.segmentation.interface import SegmentationInterface
 from node.draw_segmentation.interface import DrawSegmentationInterface
+from node.final_output.interface import OrganizeFinalOutputInterface
 
 from utils.convert_dot_to_png import convert_dot_to_png
 
@@ -98,6 +99,9 @@ draw_wm_segmentation_node.inputs.title = 'WM@map'
 draw_csf_segmentation_node = Node(DrawSegmentationInterface(), name='draw_csf_segmentation')
 draw_csf_segmentation_node.inputs.title = 'CSF@map'
 
+# Create the final output node
+final_output_node = Node(OrganizeFinalOutputInterface(), name='final_output')
+
 # ==========================================
 
 # ==========================================
@@ -119,6 +123,7 @@ nodes = [
     draw_gm_segmentation_node,
     draw_wm_segmentation_node,
     draw_csf_segmentation_node,
+    final_output_node,
 ]
 workflow.add_nodes(nodes)
 
@@ -166,6 +171,18 @@ workflow.connect(process_pair_node, 'output_folder', draw_wm_segmentation_node, 
 workflow.connect(acpc_node, 'output_file', draw_csf_segmentation_node, 'acpc_input_file')
 workflow.connect(segmentation_node, 'csf_segmented_output_file', draw_csf_segmentation_node, 'segmented_input_file')
 workflow.connect(process_pair_node, 'output_folder', draw_csf_segmentation_node, 'output_folder')
+
+# Connect the process_pair_node to the final_output_node (output_folder)
+workflow.connect(process_pair_node, 'output_folder', final_output_node, 'output_folder')
+# Connect the draw_gm_segmentation_node to the final_output_node (acpc_output_file & acpc_output_png)
+workflow.connect(acpc_node, 'output_file', final_output_node, 'acpc_output_file')
+workflow.connect(acpc_node, 'output_png_file', final_output_node, 'acpc_output_png_file')
+# Connect the draw_gm_segmentation_node to the final_output_node (gm_png_file)
+workflow.connect(draw_gm_segmentation_node, 'output_file', final_output_node, 'gm_png_file')
+# Connect the draw_wm_segmentation_node to the final_output_node (wm_png_file)
+workflow.connect(draw_wm_segmentation_node, 'output_file', final_output_node, 'wm_png_file')
+# Connect the draw_csf_segmentation_node to the final_output_node (csf_png_file)
+workflow.connect(draw_csf_segmentation_node, 'output_file', final_output_node, 'csf_png_file')
 
 # ==========================================
 

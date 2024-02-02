@@ -16,6 +16,7 @@ class ACPCDetectInputSpec(BaseInterfaceInputSpec):
 
 class ACPCDetectOutputSpec(TraitedSpec):
     output_file = File(exists=True, desc='Directory with the ACPC detection results', mandatory=True)
+    output_png_file = File(exists=True, desc='Directory with the ACPC detection PNG image', mandatory=True)
 
 class ACPCDetectInterface(SimpleInterface):
     input_spec = ACPCDetectInputSpec
@@ -27,8 +28,13 @@ class ACPCDetectInterface(SimpleInterface):
         new_output_folder = acpc_detect(input_file, output_folder)
         # Only one file is expected
         output_file = new_output_folder / (Path(input_file).stem + '_RAS.nii')
-        save_nii_as_png(output_file, new_output_folder / (Path(input_file).stem+ '_RAS.png'))
+        output_png_file = new_output_folder / (Path(input_file).stem+ '_RAS.png')
+        save_nii_as_png(
+            output_file,
+            output_png_file
+        )
         self._results['output_file'] = output_file.as_posix()
+        self._results['output_png_file'] = output_png_file.as_posix()
         return runtime
 
     def _list_outputs(self):

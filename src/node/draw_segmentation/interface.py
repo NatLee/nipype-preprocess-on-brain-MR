@@ -49,6 +49,8 @@ class DrawSegmentationInterface(SimpleInterface):
             title=title,
         )
 
+        self._results['output_file'] = output_png_path.as_posix()
+
         return runtime
 
     def _list_outputs(self):
