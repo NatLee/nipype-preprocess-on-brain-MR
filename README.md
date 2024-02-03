@@ -1,10 +1,15 @@
-# Nipype: Preprocessing Pipeline on Brain MR Images
+<div align="center" style="text-align: center">
+
+# **Nipype: Preprocessing Pipeline on Brain MR Images**
+
+<p style="text-align: center">
+  <img align="center" src="./docs/GM@map.png" alt="GM" width="70%" height="100%">
+  <img align="center" src="./docs/WM@map.png" alt="WM" width="70%" height="100%">
+  <img align="center" src="./docs/CSF@map.png" alt="CSF" width="70%" height="100%">
+</p>
+</div>
 
 > Tested on x86/64 Linux-based system.
-
-![GM](./docs/GM@map.png)
-![WM](./docs/WM@map.png)
-![CSF](./docs/CSF@map.png)
 
 The project is used to do preprocessing on brain MR images (`.nii` files).
 
