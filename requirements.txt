@@ -1,6 +1,6 @@
 loguru
 
-scikit-learn==1.4.0
+scikit-learn==1.5.0
 scikit-image==0.22.0
 
 nilearn==0.10.3
